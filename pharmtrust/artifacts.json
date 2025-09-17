@@ -1,0 +1,71 @@
+{
+  "medicines": {
+    "Amoxy_500_B2025-09-16_20241216": {
+      "medicine_name": "Amoxy 500",
+      "batch_no": "B2025-09-16",
+      "batch_asa_id": 745903745,
+      "total_units": 1000,
+      "expiry_date": "2027-08",
+      "created_date": "2024-12-16T10:00:00",
+      "unit_nfts": {
+        "U001": 745903790
+      }
+    },
+    "Paracetamol 500_B2025-01-15_20250917": {
+      "medicine_name": "Paracetamol 500",
+      "batch_no": "B2025-01-15",
+      "batch_asa_id": 745905071,
+      "total_units": 500,
+      "expiry_date": "2026-12",
+      "created_date": "2025-09-17T04:32:33.560614",
+      "unit_nfts": {
+        "U001": 745905086
+      }
+    },
+    "Test Medicine_TEST001_20250917": {
+      "medicine_name": "Test Medicine",
+      "batch_no": "TEST001",
+      "batch_asa_id": 745907430,
+      "total_units": 100,
+      "expiry_date": "2025-12",
+      "created_date": "2025-09-17T05:53:43.972109",
+      "unit_nfts": {
+        "TEST001": 745907440
+      }
+    },
+    "cetrazine_2356_20250917": {
+      "medicine_name": "cetrazine",
+      "batch_no": "2356",
+      "batch_asa_id": 745914331,
+      "total_units": 1000,
+      "expiry_date": "2027-08",
+      "created_date": "2025-09-17T10:04:26.623994",
+      "unit_nfts": {
+        "UI2CJMC": 745914345
+      }
+    },
+    "Panadol 650_578_20250917": {
+      "medicine_name": "Panadol 650",
+      "batch_no": "578",
+      "batch_asa_id": 745914438,
+      "total_units": 1000,
+      "expiry_date": "2027-08",
+      "created_date": "2025-09-17T10:07:40.332376",
+      "unit_nfts": {
+        "USFRHTC": 745914449
+      }
+    },
+    "eno_2907_20250917": {
+      "medicine_name": "eno",
+      "batch_no": "2907",
+      "batch_asa_id": 745914625,
+      "total_units": 1000,
+      "expiry_date": "2027-08",
+      "created_date": "2025-09-17T10:13:34.013431",
+      "unit_nfts": {
+        "UV9GM18": 745914627
+      }
+    }
+  },
+  "BATCH_ASA_ID": 745907669
+}

@@ -1,0 +1,15 @@
+{
+    "network": {
+      "algod_address": "https://testnet-api.algonode.cloud",
+      "algod_token": ""
+    },
+    "creator": {
+      "mnemonic": "orange toy mirror security army pigeon series praise resemble local spring history snap oxygen melody edge cost grunt focus race two neglect grit abstract taste",
+      "address": "IFUE2Y2FMTF7JWQH5R7MX5TJGYOFM6OTCOMMHOLMTZSZY5LYLD35YPLKK4"
+    },
+    "pharmacy": { 
+        "mnemonic": "oblige ensure kind unfair mutual unveil spell high quality cloth loop want point plunge arch bottom", 
+    "address": "M2K7PY66MPKDPTHDWXBDNMCAXO6G777WXKAWYU6VG4YULULQPXMYGQ3MGE" },
+    "consumer": { "mnemonic": "", "address": "" }
+  }
+  

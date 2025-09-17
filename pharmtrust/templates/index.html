@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaTrust - Medicine Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+        }
+        .qr-code {
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        .status-badge {
+            font-size: 0.8rem;
+        }
+        .medicine-card {
+            border-left: 4px solid #28a745;
+        }
+        .loading {
+            display: none;
+        }
+        .error-message {
+            display: none;
+        }
+        .success-message {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark gradient-bg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-pills me-2"></i>PharmaTrust
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <i class="fas fa-wallet me-1"></i>
+                    Balance: <span id="balance">Loading...</span> ALGO
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-4 text-center mb-3">
+                    <i class="fas fa-shield-alt text-primary me-3"></i>
+                    Medicine Management System
+                </h1>
+                <p class="text-center text-muted">Create, track, and verify pharmaceutical products on Algorand blockchain</p>
+            </div>
+        </div>
+
+        <!-- Create Medicine Form -->
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow card-hover">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>Create New Medicine Batch
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="medicineForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="medicineName" class="form-label">Medicine Name</label>
+                                    <input type="text" class="form-control" id="medicineName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="batchNo" class="form-label">Batch Number</label>
+                                    <input type="text" class="form-control" id="batchNo" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="totalUnits" class="form-label">Total Units</label>
+                                    <input type="number" class="form-control" id="totalUnits" value="1000" min="1">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="expiryDate" class="form-label">Expiry Date</label>
+                                    <input type="text" class="form-control" id="expiryDate" placeholder="YYYY-MM" value="2027-08">
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-rocket me-2"></i>Create Medicine Batch
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Loading and Status Messages -->
+                        <div class="loading text-center mt-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Creating medicine batch...</p>
+                        </div>
+                        
+                        <div class="error-message alert alert-danger mt-3" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span id="errorText"></span>
+                        </div>
+                        
+                        <div class="success-message alert alert-success mt-3" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span id="successText"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medicine Inventory -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-boxes me-2"></i>Medicine Inventory
+                        </h5>
+                        <button class="btn btn-light btn-sm" onclick="loadMedicines()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="medicinesContainer">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading medicines...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unit NFT Modal -->
+    <div class="modal fade" id="unitNftModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-certificate me-2"></i>Create Unit NFT
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Medicine Details:</h6>
+                            <p><strong>Name:</strong> <span id="modalMedicineName"></span></p>
+                            <p><strong>Batch:</strong> <span id="modalBatchNo"></span></p>
+                            <p><strong>Batch ASA ID:</strong> <span id="modalBatchAsaId"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="unitSerial" class="form-label">Unit Serial</label>
+                            <input type="text" class="form-control" id="unitSerial" placeholder="U001">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-info" onclick="createUnitNft()">
+                            <i class="fas fa-plus me-2"></i>Create Unit NFT
+                        </button>
+                    </div>
+                    
+                    <div id="unitNftResult" class="mt-3" style="display: none;">
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle me-2"></i>Unit NFT Created Successfully!</h6>
+                            <p><strong>Unit NFT ID:</strong> <span id="unitNftId"></span></p>
+                            <p><strong>Unit Serial:</strong> <span id="unitSerialResult"></span></p>
+                        </div>
+                        <div class="text-center">
+                            <h6>QR Code:</h6>
+                            <img id="qrCodeImage" class="img-fluid qr-code" alt="QR Code">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentMedicineId = null;
+        
+        // Load balance on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBalance();
+            loadMedicines();
+        });
+        
+        // Load account balance
+        async function loadBalance() {
+            try {
+                const response = await fetch('/api/balance');
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('balance').textContent = data.balance.toFixed(3);
+                }
+            } catch (error) {
+                console.error('Error loading balance:', error);
+            }
+        }
+        
+        // Load medicines
+        async function loadMedicines() {
+            try {
+                const response = await fetch('/api/medicines');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayMedicines(data.medicines);
+                } else {
+                    document.getElementById('medicinesContainer').innerHTML = 
+                        '<div class="alert alert-danger">Error loading medicines: ' + data.error + '</div>';
+                }
+            } catch (error) {
+                document.getElementById('medicinesContainer').innerHTML = 
+                    '<div class="alert alert-danger">Error loading medicines: ' + error.message + '</div>';
+            }
+        }
+        
+        // Display medicines
+        function displayMedicines(medicines) {
+            const container = document.getElementById('medicinesContainer');
+            
+            if (Object.keys(medicines).length === 0) {
+                container.innerHTML = '<div class="text-center text-muted"><p>No medicines found. Create your first medicine batch above!</p></div>';
+                return;
+            }
+            
+            let html = '<div class="row">';
+            
+            for (const [medicineId, medicine] of Object.entries(medicines)) {
+                const unitNftCount = Object.keys(medicine.unit_nfts || {}).length;
+                
+                html += `
+                    <div class="col-lg-6 mb-4">
+                        <div class="card medicine-card card-hover">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title">${medicine.medicine_name}</h5>
+                                    <span class="badge bg-success status-badge">Active</span>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <small class="text-muted">Batch Number</small>
+                                        <p class="mb-0"><strong>${medicine.batch_no}</strong></p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Total Units</small>
+                                        <p class="mb-0"><strong>${medicine.total_units}</strong></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <small class="text-muted">Batch ASA ID</small>
+                                        <p class="mb-0"><code>${medicine.batch_asa_id}</code></p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Expiry Date</small>
+                                        <p class="mb-0"><strong>${medicine.expiry_date}</strong></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-certificate me-1"></i>
+                                        ${unitNftCount} Unit NFTs Created
+                                    </small>
+                                    <button class="btn btn-info btn-sm" onclick="openUnitNftModal('${medicineId}', '${medicine.medicine_name}', '${medicine.batch_no}', '${medicine.batch_asa_id}')">
+                                        <i class="fas fa-plus me-1"></i>Create Unit NFT
+                                    </button>
+                                </div>
+                                
+                                ${unitNftCount > 0 ? `
+                                    <div class="mt-3">
+                                        <small class="text-muted">Unit NFTs:</small>
+                                        <div class="mt-1">
+                                            ${Object.entries(medicine.unit_nfts).map(([serial, nftId]) => `
+                                                <span class="badge bg-light text-dark me-1 mb-1">
+                                                    ${serial}: ${nftId}
+                                                </span>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // Handle medicine form submission
+        document.getElementById('medicineForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                medicine_name: document.getElementById('medicineName').value,
+                batch_no: document.getElementById('batchNo').value,
+                total_units: parseInt(document.getElementById('totalUnits').value),
+                expiry_date: document.getElementById('expiryDate').value
+            };
+            
+            // Show loading
+            document.querySelector('.loading').style.display = 'block';
+            document.querySelector('.error-message').style.display = 'none';
+            document.querySelector('.success-message').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/medicines', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                document.querySelector('.loading').style.display = 'none';
+                
+                if (data.success) {
+                    document.getElementById('successText').textContent = 
+                        `Medicine "${formData.medicine_name}" created successfully! Batch ASA ID: ${data.batch_asa_id}`;
+                    document.querySelector('.success-message').style.display = 'block';
+                    
+                    // Clear form
+                    document.getElementById('medicineForm').reset();
+                    document.getElementById('totalUnits').value = '1000';
+                    document.getElementById('expiryDate').value = '2027-08';
+                    
+                    // Reload medicines
+                    loadMedicines();
+                    loadBalance();
+                } else {
+                    document.getElementById('errorText').textContent = data.error;
+                    document.querySelector('.error-message').style.display = 'block';
+                }
+            } catch (error) {
+                document.querySelector('.loading').style.display = 'none';
+                document.getElementById('errorText').textContent = 'Error creating medicine: ' + error.message;
+                document.querySelector('.error-message').style.display = 'block';
+            }
+        });
+        
+        // Open unit NFT modal
+        function openUnitNftModal(medicineId, medicineName, batchNo, batchAsaId) {
+            currentMedicineId = medicineId;
+            document.getElementById('modalMedicineName').textContent = medicineName;
+            document.getElementById('modalBatchNo').textContent = batchNo;
+            document.getElementById('modalBatchAsaId').textContent = batchAsaId;
+            document.getElementById('unitSerial').value = 'U' + Math.random().toString(36).substr(2, 6).toUpperCase();
+            document.getElementById('unitNftResult').style.display = 'none';
+            
+            new bootstrap.Modal(document.getElementById('unitNftModal')).show();
+        }
+        
+        // Create unit NFT
+        async function createUnitNft() {
+            const unitSerial = document.getElementById('unitSerial').value;
+            
+            if (!unitSerial) {
+                alert('Please enter a unit serial');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/medicines/${currentMedicineId}/units`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ unit_serial: unitSerial })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('unitNftId').textContent = data.unit_nft_id;
+                    document.getElementById('unitSerialResult').textContent = data.unit_serial;
+                    document.getElementById('qrCodeImage').src = 'data:image/png;base64,' + data.qr_code;
+                    document.getElementById('unitNftResult').style.display = 'block';
+                    
+                    // Reload medicines to show updated data
+                    loadMedicines();
+                } else {
+                    alert('Error creating unit NFT: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error creating unit NFT: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

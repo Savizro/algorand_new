@@ -1,0 +1,11 @@
+{
+    "name": "PharmaTrust Package #U123",
+    "description": "Authentic Amoxy 500 medicine package",
+    "image": "ipfs://YOUR_IMAGE_CID/package.png",
+    "properties": {
+      "drug_name": "Amoxy 500",
+      "batch_no": "B-2025-09-16",
+      "expiry": "2027-08",
+      "ai_report_uri": "ipfs://YOUR_REPORT_CID/report.json"
+    }
+  }

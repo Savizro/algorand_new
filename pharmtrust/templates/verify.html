@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaTrust - Product Verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .verification-card {
+            border-left: 4px solid #28a745;
+        }
+        .authentic-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        .qr-scanner {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .qr-scanner:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .product-details {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+        }
+        .blockchain-info {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark gradient-bg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-pills me-2"></i>PharmaTrust
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-home me-1"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-shield-check text-success me-3"></i>
+                    Product Verification
+                </h1>
+                <p class="text-muted">Verify the authenticity of pharmaceutical products using blockchain technology</p>
+            </div>
+        </div>
+
+        <!-- Verification Methods -->
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-qrcode me-2"></i>Scan QR Code
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="qr-scanner" onclick="document.getElementById('qrFileInput').click()">
+                            <div class="text-center">
+                                <i class="fas fa-camera fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Click to scan QR code from image</p>
+                                <small class="text-muted">Or drag and drop an image here</small>
+                            </div>
+                        </div>
+                        <input type="file" id="qrFileInput" accept="image/*" style="display: none;" onchange="handleQRUpload(event)">
+                        
+                        <div class="mt-3">
+                            <hr>
+                            <p class="text-center text-muted">Or enter Unit NFT ID manually:</p>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="manualNftId" placeholder="Enter Unit NFT ID">
+                                <button class="btn btn-primary" onclick="verifyManualId()">
+                                    <i class="fas fa-search me-1"></i>Verify
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Verification Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="verificationStatus">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-question-circle fa-3x mb-3"></i>
+                                <p>Scan a QR code or enter Unit NFT ID to verify product authenticity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details (shown after verification) -->
+        <div class="row" id="productDetails" style="display: none;">
+            <div class="col-12">
+                <div class="card shadow verification-card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-check-circle me-2"></i>Product Verification Results
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="product-details p-4 mb-4">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <h6 class="text-muted">Medicine Name</h6>
+                                            <h4 id="verifiedMedicineName" class="text-primary"></h4>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <h6 class="text-muted">Batch Number</h6>
+                                            <h4 id="verifiedBatchNo" class="text-dark"></h4>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <h6 class="text-muted">Unit Serial</h6>
+                                            <h5 id="verifiedUnitSerial" class="text-info"></h5>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <h6 class="text-muted">Expiry Date</h6>
+                                            <h5 id="verifiedExpiryDate" class="text-warning"></h5>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <h6 class="text-muted">Created Date</h6>
+                                            <p id="verifiedCreatedDate" class="mb-0"></p>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <h6 class="text-muted">Unit NFT ID</h6>
+                                            <code id="verifiedUnitNftId" class="text-dark"></code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="blockchain-info p-4 text-center">
+                                    <div class="mb-3">
+                                        <span class="badge authentic-badge text-white fs-6 px-3 py-2">
+                                            <i class="fas fa-shield-check me-2"></i>AUTHENTIC PRODUCT
+                                        </span>
+                                    </div>
+                                    <p class="text-muted mb-3">This product has been verified on the Algorand blockchain</p>
+                                    <div class="mt-3">
+                                        <button class="btn btn-outline-primary" onclick="generateQRCode()">
+                                            <i class="fas fa-qrcode me-2"></i>Generate QR Code
+                                        </button>
+                                    </div>
+                                    <div id="generatedQR" class="mt-3" style="display: none;">
+                                        <img id="qrCodeImg" class="img-fluid" alt="Generated QR Code">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="row" id="errorMessage" style="display: none;">
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Verification Failed</h5>
+                    <p id="errorText" class="mb-0"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const unitNftId = '{{ unit_nft_id }}';
+        
+        // Auto-verify if unit_nft_id is provided in URL
+        if (unitNftId && unitNftId !== '') {
+            verifyProduct(unitNftId);
+        }
+        
+        // Handle QR code file upload
+        function handleQRUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // In a real implementation, you would use a QR code scanning library
+                // For now, we'll just show a message
+                alert('QR code scanning from image is not implemented in this demo. Please enter the Unit NFT ID manually.');
+            }
+        }
+        
+        // Verify manual ID
+        function verifyManualId() {
+            const nftId = document.getElementById('manualNftId').value.trim();
+            if (nftId) {
+                verifyProduct(nftId);
+            } else {
+                alert('Please enter a Unit NFT ID');
+            }
+        }
+        
+        // Verify product
+        async function verifyProduct(nftId) {
+            try {
+                const response = await fetch(`/api/verify/${nftId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayVerificationResults(data.verification);
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Error verifying product: ' + error.message);
+            }
+        }
+        
+        // Display verification results
+        function displayVerificationResults(verification) {
+            document.getElementById('verificationStatus').innerHTML = `
+                <div class="text-center text-success">
+                    <i class="fas fa-check-circle fa-3x mb-3"></i>
+                    <h5>Product Verified Successfully!</h5>
+                    <p class="text-muted">This product is authentic and registered on the blockchain</p>
+                </div>
+            `;
+            
+            // Fill in product details
+            document.getElementById('verifiedMedicineName').textContent = verification.medicine_name;
+            document.getElementById('verifiedBatchNo').textContent = verification.batch_no;
+            document.getElementById('verifiedUnitSerial').textContent = verification.unit_serial;
+            document.getElementById('verifiedExpiryDate').textContent = verification.expiry_date;
+            document.getElementById('verifiedCreatedDate').textContent = new Date(verification.created_date).toLocaleDateString();
+            document.getElementById('verifiedUnitNftId').textContent = verification.unit_nft_id;
+            
+            // Show product details
+            document.getElementById('productDetails').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        // Show error message
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('productDetails').style.display = 'none';
+            
+            document.getElementById('verificationStatus').innerHTML = `
+                <div class="text-center text-danger">
+                    <i class="fas fa-times-circle fa-3x mb-3"></i>
+                    <h5>Verification Failed</h5>
+                    <p class="text-muted">${message}</p>
+                </div>
+            `;
+        }
+        
+        // Generate QR code
+        async function generateQRCode() {
+            const nftId = document.getElementById('verifiedUnitNftId').textContent;
+            if (nftId) {
+                try {
+                    const response = await fetch(`/api/qr/${nftId}`);
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById('qrCodeImg').src = url;
+                    document.getElementById('generatedQR').style.display = 'block';
+                } catch (error) {
+                    alert('Error generating QR code: ' + error.message);
+                }
+            }
+        }
+        
+        // Drag and drop functionality
+        const qrScanner = document.querySelector('.qr-scanner');
+        
+        qrScanner.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#007bff';
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        
+        qrScanner.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#dee2e6';
+            this.style.backgroundColor = 'transparent';
+        });
+        
+        qrScanner.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#dee2e6';
+            this.style.backgroundColor = 'transparent';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                alert('QR code scanning from image is not implemented in this demo. Please enter the Unit NFT ID manually.');
+            }
+        });
+    </script>
+</body>
+</html>
